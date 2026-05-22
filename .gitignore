@@ -1,11 +1,42 @@
+# Вимоги з лабораторної (службові каталоги Unity)
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
+/[Ll]ogs/
 /[Bb]uild/
 /[Bb]uilds/
-/[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+
+# Кеш пам'яті та записи 
 /[Mm]emoryCaptures/
-.vs/
+/[Rr]ecordings/
+
+# Налаштування Visual Studio Code (твій редактор)
+.vscode/
+
+# Автозгенеровані файли проєктів C# та мета-файли
+ExportedObj/
 *.csproj
 *.sln
+*.pidb
+*.pdb
+*.pidb.meta
+*.pdb.meta
+
+# Звіти про помилки (краші)
+sysinfo.txt
+crashlytics-build.properties
+
+# Зібрані білди
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Системні файли macOS та Windows
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+ehthumbs.db
+Thumbs.db
