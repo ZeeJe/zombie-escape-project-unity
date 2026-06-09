@@ -617,6 +617,7 @@ GameObject:
   - component: {fileID: 702048138}
   - component: {fileID: 702048137}
   - component: {fileID: 702048136}
+  - component: {fileID: 702048140}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -708,6 +709,26 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &702048140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702048135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78cc183038495e44eb9267aa870f24c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  mainMenuPanel: {fileID: 0}
+  hudPanel: {fileID: 0}
+  gameOverPanel: {fileID: 0}
+  scoreText: {fileID: 0}
+  distanceText: {fileID: 0}
+  gameOverScoreText: {fileID: 0}
+  gameOverDistanceText: {fileID: 0}
+  highScoreText: {fileID: 0}
 --- !u!1 &875526187
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,7 +835,7 @@ RectTransform:
   m_GameObject: {fileID: 1512481217}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 1.4285713, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 536430232}
@@ -1308,7 +1329,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b67ae6994e2c174eac027c5ffcee97d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  scoreText: {fileID: 1512481219}
+  mainMenuSceneName: MainMenu
+  gameSceneName: SampleScene
+  distancePerSecond: 5
+  scoreMultiplier: 10
 --- !u!4 &1891402796
 Transform:
   m_ObjectHideFlags: 0

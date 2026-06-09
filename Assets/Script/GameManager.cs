@@ -9,32 +9,37 @@ public class GameManager : MonoBehaviour
     public enum GameState { MainMenu, Playing, Paused, GameOver }
     public GameState CurrentState { get; private set; } = GameState.MainMenu;
 
-    [Header("Scene Settings")]
-    [SerializeField] string mainMenuSceneName = "MainMenu";
-    [SerializeField] string gameSceneName = "SampleScene";
+    [Header("Scene Names")]
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string gameSceneName = "SampleScene";
 
-    [Header("Gameplay")]
-    [SerializeField] float distancePerSecond = 5f;
-    [SerializeField] float scoreMultiplier = 10f;
+    [Header("Gameplay Settings")]
+    [SerializeField] private float distancePerSecond = 5f;
+    [SerializeField] private float scoreMultiplier = 10f;
 
-    const string HighScoreKey = "ZE_HighScore";
+    private const string HighScoreKey = "ZE_HighScore";
 
+    // Події для зв'язку з UIManager та іншими скриптами
     public event Action<GameState> OnStateChanged;
-    public event Action<int, int> OnScoreUpdated;
+    public event Action<int, int> OnScoreUpdated; // (очки, дистанція)
     public event Action<int> OnHighScoreChanged;
 
-    int score;
-    int highScore;
-    float distance;
+    private int score;
+    private int highScore;
+    private float distance;
 
-    void Awake()
+    private void Awake()
     {
+        // Класичний Сінглтон, щоб GameManager не видалявся між сценами
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // Підписка на подію завантаження сцен в Unity
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
-        else if (Instance != this)
+        else
         {
             Destroy(gameObject);
             return;
@@ -43,15 +48,33 @@ public class GameManager : MonoBehaviour
         highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
     }
 
-    void Start()
+    private void OnDestroy()
     {
-        SetState(CurrentState);
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
     }
 
-    void Update()
+    // Автоматично спрацьовує, коли БУДЬ-ЯКА сцена завершила завантаження
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (CurrentState != GameState.Playing)
-            return;
+        if (scene.name == mainMenuSceneName)
+        {
+            ResetGameplayData();
+            SetState(GameState.MainMenu);
+        }
+        else if (scene.name == gameSceneName)
+        {
+            ResetGameplayData();
+            Time.timeScale = 1f; // Переконаємось, що час не на паузі
+            SetState(GameState.Playing);
+        }
+    }
+
+    private void Update()
+    {
+        if (CurrentState != GameState.Playing) return;
 
         distance += Time.deltaTime * distancePerSecond;
         int currentDistance = Mathf.FloorToInt(distance);
@@ -66,15 +89,12 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        Time.timeScale = 1f;
-        SetState(GameState.Playing);
         SceneManager.LoadScene(gameSceneName);
     }
 
     public void PauseGame()
     {
-        if (CurrentState != GameState.Playing)
-            return;
+        if (CurrentState != GameState.Playing) return;
 
         Time.timeScale = 0f;
         SetState(GameState.Paused);
@@ -82,8 +102,7 @@ public class GameManager : MonoBehaviour
 
     public void ResumeGame()
     {
-        if (CurrentState != GameState.Paused)
-            return;
+        if (CurrentState != GameState.Paused) return;
 
         Time.timeScale = 1f;
         SetState(GameState.Playing);
@@ -91,8 +110,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        if (CurrentState == GameState.GameOver)
-            return;
+        if (CurrentState == GameState.GameOver) return;
 
         Time.timeScale = 0f;
         SetState(GameState.GameOver);
@@ -101,38 +119,40 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
-        score = 0;
-        distance = 0f;
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        SetState(GameState.Playing);
+        SceneManager.LoadScene(gameSceneName);
     }
 
     public void ReturnToMainMenu()
     {
-        Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
-        SetState(GameState.MainMenu);
     }
 
-    public int GetScore() => score;
-    public int GetDistance() => Mathf.FloorToInt(distance);
-    public int GetHighScore() => highScore;
+    private void ResetGameplayData()
+    {
+        score = 0;
+        distance = 0f;
+        OnScoreUpdated?.Invoke(0, 0); // Обнуляємо UI при старті
+    }
 
-    void SetState(GameState newState)
+    private void SetState(GameState newState)
     {
         CurrentState = newState;
         OnStateChanged?.Invoke(newState);
     }
 
-    void SaveHighScore()
+    private void SaveHighScore()
     {
-        if (score <= highScore)
-            return;
-
-        highScore = score;
-        PlayerPrefs.SetInt(HighScoreKey, highScore);
-        PlayerPrefs.Save();
-        OnHighScoreChanged?.Invoke(highScore);
+        if (score > highScore)
+        {
+            highScore = score;
+            PlayerPrefs.SetInt(HighScoreKey, highScore);
+            PlayerPrefs.Save();
+            OnHighScoreChanged?.Invoke(highScore);
+        }
     }
+
+    // Геттери для безпечного читання даних іншими скриптами
+    public int GetScore() => score;
+    public int GetDistance() => Mathf.FloorToInt(distance);
+    public int GetHighScore() => highScore;
 }
